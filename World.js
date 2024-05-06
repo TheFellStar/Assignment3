@@ -202,7 +202,7 @@ function initTextures(){
         return false;
     }
 
-    image.onload = function(){ sendImageToTEXTURE0(image);};
+    image.onload = function(){ sendImageToTEXTURE0(image, 0);};
 
     image.src = 'sky.jpg';
 
@@ -212,14 +212,14 @@ function initTextures(){
         return false;
     }
 
-    groundImg.onload = function(){ sendImageToTEXTURE0(groundImg);};
+    groundImg.onload = function(){ sendImageToTEXTURE0(groundImg, 1);};
 
     groundImg.src = 'ground.jpeg';
 
     return true;
 }
 
-function sendImageToTEXTURE0(image){
+function sendImageToTEXTURE0(image, type){
     var texture = gl.createTexture();
     if(!texture){
         console.log('Failed to create the texture object');
@@ -229,7 +229,7 @@ function sendImageToTEXTURE0(image){
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); //Flip the image's y axis
     //Enable texture unit0
     
-    if(image.src == 'http://127.0.0.1:5500/sky.jpg'){
+    if(type == 0){
         gl.activeTexture(gl.TEXTURE0);
     }else{
         gl.activeTexture(gl.TEXTURE1);
@@ -243,7 +243,7 @@ function sendImageToTEXTURE0(image){
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
     //set the texture unit0 to the sampler
-    if(image.src == 'http://127.0.0.1:5500/sky.jpg'){
+    if(type == 0){
         gl.uniform1i(u_Sampler0, 0);
     }else{
         gl.uniform1i(u_Sampler1, 1);
