@@ -144,7 +144,7 @@ const CIRCLE = 2;
 let g_selectedColor=[1.0,1.0,1.0,1.0];
 let g_size=5;
 let g_selectedType=POINT;
-let g_globalAngle=45;
+let g_globalAngle=0;
 let g_mainAngle=0;
 let g_yellowAngle=0;
 let g_magentaAngle=0;
@@ -153,6 +153,7 @@ let g_backAngle=0;
 let g_yellowAnimation=false;
 let g_magentaAnimation=false;
 let g_bodyAnimation=false;
+let g_camera = null;
 //let g_segment=10;
 
 //Set up actions for the HTML UI elements
@@ -163,8 +164,8 @@ function addActionsForHtmlUI(){
     document.getElementById('animationYellowOnButton').onclick = function() {g_yellowAnimation=true;};
     document.getElementById('animationMagentaOffButton').onclick = function() {g_magentaAnimation=false;};
     document.getElementById('animationMagentaOnButton').onclick = function() {g_magentaAnimation=true;};
-    document.getElementById('animationBodyOffButton').onclick = function() {g_bodyAnimation=false;};
-    document.getElementById('animationBodyOnButton').onclick = function() {g_bodyAnimation=true;};
+    //document.getElementById('animationBodyOffButton').onclick = function() {g_bodyAnimation=false;};
+    //document.getElementById('animationBodyOnButton').onclick = function() {g_bodyAnimation=true;};
     //document.getElementById('green').onclick = function() { g_selectedColor = [0.0,1.0,0.0,1.0];};
     //document.getElementById('red').onclick = function() { g_selectedColor = [1.0,0.0,0.0,1.0];};
     //document.getElementById('clearButton').onclick = function() {g_shapesList=[]; renderAllShapes();};
@@ -177,8 +178,8 @@ function addActionsForHtmlUI(){
     //document.getElementById('redSlide').addEventListener('mouseup', function() {g_selectedColor[0] = this.value/100;});
     document.getElementById('magentaSlide').addEventListener('mousemove', function() {g_magentaAngle = this.value; renderScene();});
     document.getElementById('yellowSlide').addEventListener('mousemove', function() {g_yellowAngle = this.value; renderScene();});
-    document.getElementById('mainSlide').addEventListener('mousemove', function() {g_mainAngle = this.value; renderScene();});
-    document.getElementById('backSlide').addEventListener('mousemove', function() {g_backAngle = this.value; renderScene();});
+    //document.getElementById('mainSlide').addEventListener('mousemove', function() {g_mainAngle = this.value; renderScene();});
+    //  document.getElementById('backSlide').addEventListener('mousemove', function() {g_backAngle = this.value; renderScene();});
 
     //Size Slider Events
     document.getElementById('angleSlide').addEventListener('mousemove', function() { g_globalAngle = this.value; renderScene();});
@@ -268,6 +269,7 @@ function main() {
     //Clear <canvas>
     //gl.clear(gl.COLOR_BUFFER_BIT);
     //renderScene();
+    g_camera=new Camera(50, 1*canvas.width/canvas.height, 1, 100);
     requestAnimationFrame(tick);
 }
 
@@ -298,64 +300,220 @@ function updateAnimationAngles(){
 }
 
 function keydown(ev){
-    if(ev.keyCode==39){ //Right arrow
-        g_eye[0] += 0.2;
-    }else if(ev.keyCode == 37){ //left arrow
-        g_eye[0] -= 0.2;
+    if(ev.keyCode==68){ //Right arrow
+        //g_eye[0] += 0.2;
+        g_camera.moveRight();
+    }else if(ev.keyCode == 65){ //left arrow
+        //g_eye[0] -= 0.2;
+        g_camera.moveLeft();
     }
-    if(ev.keyCode==38){
-        g_eye[2] -= 0.2;
-    }else if(ev.keyCode == 40){
-        g_eye[2] += 0.2;
+    if(ev.keyCode==87){
+        //g_eye[2] -= 0.2;
+        g_camera.moveForward();
+    }else if(ev.keyCode == 83){
+        //g_eye[2] += 0.2;
+        g_camera.moveBackwards();
+    }
+    if(ev.keyCode==69){
+        g_camera.panRight();
+    }else if(ev.keyCode==81){
+        g_camera.panLeft();
+    }
+    if(ev.keyCode==88){
+        placeBlock();
+    }else if(ev.keyCode==90){
+        removeBlock();
     }
 
     renderScene();
-    console.log(ev.keyCode);
 }
 
-var g_eye=[0,0,3];
-var g_at=[0,0,-100];
-var g_up=[0,1,0];
-
-//var g_camera=new Camera();
-
 var g_map=[
-    [1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1],
-    [1,0,0,1,1,0,0,1],
-    [1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1],
-    [1,0,0,0,1,0,0,1],
-    [1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1],
 ];
 
 function drawMap(){
-    for(x=0;x<32;x++){
-        for(y=0;y<32;y++){
-            if(x<1||x==31||y==0||y==31){
+    for(x=0;x<10;x++){
+        for(y=0;y<10;y++){
+            if(g_map[x][y]==1){
                 var body = new Cube();
-                body.color = [0.8,1,1,1];
-                body.matrix.translate(0,-.75,0);
-                body.matrix.scale(.4,.4,.4);
-                body.matrix.translate(x-16,0,y-16);
-                body.renderfast();
+                body.color = [1.0,1.0,1.0,1.0];
+                body.textureNum = -2;
+                body.matrix.translate(x-5, -.75, y-5);
+                body.render();
             }
         }
     }
 }
 
+var blockList = [];
+
+function placeBlock(){
+    var block = new Cube();
+    block.color = [1.0,1.0,1.0,1.0];
+    block.textureNum = 1;
+    block.matrix.translate(g_camera.at.elements[0]-1, -g_camera.at.elements[1]-.75, g_camera.at.elements[2]);
+    blockList.push(block);
+}
+
+function removeBlock(){
+    blockList.pop();
+    renderScene();
+}
+
+function drawShittyDog(){
+    var frontBody = new Cube();
+    frontBody.color = [0.5,0.5,0.5,0.75];
+    frontBody.textureNum = -2;
+    frontBody.matrix.translate(-.25, -.3, 0.0);
+    frontBody.matrix.rotate(0,1,0,0);
+    frontBody.matrix.rotate(0,0,1,0);
+    var mainBodyMatrix = new Matrix4(frontBody.matrix);
+    frontBody.matrix.scale(0.3, .3, .2);
+    frontBody.render();
+
+    //back body
+    var backBody = new Cube();
+    backBody.color = [0.5,0.5,0.5,0.75];
+    backBody.textureNum = -2;
+    backBody.matrix = new Matrix4(mainBodyMatrix);
+    backBody.matrix.translate(.02,.02,.14);
+    backBody.matrix.rotate(0,1,0,0);
+    backBody.matrix.scale(0.26, .26, .45);
+    backBody.render();
+    var backMatrix = backBody.matrix;
+
+    //tail
+    var tail = new Cube();
+    tail.color = [0.5,0.5,0.5,0.75];
+    tail.textureNum = -2;
+    tail.matrix = new Matrix4(backMatrix);
+    tail.matrix.translate(.34,.7,0.8);
+    tail.matrix.rotate(-15,1,0,0);
+    tail.matrix.scale(.3,.3,.9);
+    // box.matrix.translate(-.5,0,-.001);
+    tail.render();
+
+    //head
+    var head = new Cube();
+    head.color = [0.5, 0.5, 0.5, 0.75];
+    head.textureNum = -2;
+    head.matrix = new Matrix4(mainBodyMatrix);   
+    head.matrix.translate(0.025,.03,-0.17);
+    head.matrix.scale(0.25,0.25,0.17);
+    head.matrix.rotate(0,0,0,1);
+    head.render();
+    var headMatrix = head.matrix;
+
+    //mouth
+    var mouth = new Cube();
+    mouth.color = [0,0,0,1];
+    mouth.textureNum = -2;
+    mouth.matrix = new Matrix4(headMatrix);
+    mouth.matrix.translate(0.2,0,-.7);
+    mouth.matrix.scale(.6,.2,.7);
+    mouth.render();
+
+    //snout
+    var snout = new Cube();
+    snout.color = [0.5,0.5,0.5,.75];
+    snout.textureNum = -2;
+    snout.matrix = new Matrix4(headMatrix);
+    snout.matrix.translate(0.2,0.2,-.7);
+    snout.matrix.scale(.6,.3,.7);
+    snout.render();
+
+    //nose
+    var nose = new Cube();
+    nose.color = [0,0,0,1];
+    nose.textureNum = -2;
+    nose.matrix = new Matrix4(headMatrix);
+    nose.matrix.translate(0.4,.301,-.71);
+    nose.matrix.scale(.2,.2,.2);
+    nose.render();
+
+    //eyes
+    var eye1 = new Cube();
+    eye1.color =[0,0,0,1];
+    eye1.textureNum = -2;
+    eye1.matrix = new Matrix4(headMatrix);
+    eye1.matrix.translate(0.1,0.5,-.01);
+    eye1.matrix.scale(0.2,0.2,0.2);
+    eye1.render();
+
+    var eye2 = new Cube();
+    eye2.color = eye1.color;
+    eye2.textureNum = -2;
+    eye2.matrix = eye1.matrix;
+    eye2.matrix.translate(3,0,0);
+    eye2.render();
+
+    //ears
+    var ear1 = new Cube();
+    ear1.color = [.5,.5,.5,.8];
+    ear1.textureNum = -2;
+    ear1.matrix = new Matrix4(headMatrix);
+    ear1.matrix.translate(0,1,.7);
+    ear1.matrix.scale(.35,.35,.25);
+    ear1.render();
+
+    var ear2 = new Cube();
+    ear2.color = ear1.color;
+    ear2.textureNum = -2;
+    ear2.matrix = ear1.matrix;
+    ear2.matrix.translate(1.9,0,0);
+    ear2.render();
+
+    //legs
+    var leg1 = new Cube();
+    leg1.color = [.5,.5,.5,.75];
+    leg1.textureNum = -2;
+    leg1.matrix = new Matrix4(mainBodyMatrix);
+    leg1.matrix.translate(.03,-.25,0);
+    leg1.matrix.scale(.1,.27,.1);
+    leg1.render();
+
+    var leg2 = new Cube();
+    leg2.color = leg1.color;
+    leg2.textureNum = -2;
+    leg2.matrix = leg1.matrix;
+    leg2.matrix.translate(1.4,0,0);
+    leg2.render();
+
+    var leg3 = new Cube();
+    leg3.color = leg1.color;
+    leg3.textureNum = -2;
+    leg3.matrix = backMatrix;
+    leg3.matrix.translate(.6,-1.05,.4);
+    leg3.matrix.scale(.34,1.5,.22);
+    leg3.render();
+
+    var leg4 = new Cube();
+    leg4.color = leg1.color;
+    leg4.textureNum = -2;
+    leg4.matrix = leg3.matrix;
+    leg4.matrix.translate(-1.4,0,0);
+    leg4.render();
+}
+
 function renderScene(){
     var startTime = performance.now();
 
-    var projMat=new Matrix4();
-    projMat.setPerspective(50, 1*canvas.width/canvas.height, 1, 100);
-    gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+    // var projMat=new Matrix4();
+    // projMat.setPerspective(50, 1*canvas.width/canvas.height, 1, 100);
+    gl.uniformMatrix4fv(u_ProjectionMatrix, false, g_camera.projectionMatrix.elements);
 
-    var viewMat=new Matrix4();
-    //viewMat.setLookAt(g_camera.eye.x, g_camera.eye.y, g_camera.eye.z, g_camera.at.x, g_camera.at.y, g_camera.at.z, g_camera.up.x, g_camera.up.y, g_camera.up.z);
-    viewMat.setLookAt(g_eye[0],g_eye[1],g_eye[2],g_at[0],g_at[1],g_at[2],g_up[0],g_up[1],g_up[2]);
-    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
+    //viewMat.setLookAt(g_eye[0],g_eye[1],g_eye[2],g_at[0],g_at[1],g_at[2],g_up[0],g_up[1],g_up[2]);
+    gl.uniformMatrix4fv(u_ViewMatrix, false, g_camera.viewMatrix.elements);
 
     var globalRotMat = new Matrix4().rotate(g_globalAngle,0,1,0);
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
@@ -363,7 +521,7 @@ function renderScene(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    //drawMap();
+    drawMap();
 
     var floor = new Cube();
     floor.color = [1.0,0.0,0.0,1.0];
@@ -380,39 +538,11 @@ function renderScene(){
     sky.matrix.translate(-.5,-.5,-0.5);
     sky.render();
 
-    var body = new Cube();
-    body.color = [1.0,0.0,0.0,1.0];
-    body.textureNum=-2;
-    body.matrix.translate(-.25, -.75, 0.0);
-    body.matrix.rotate(-5,1,0,0);
-    body.matrix.scale(0.5, .3, .5);
-    body.render();
+    drawShittyDog();
 
-    var yellow = new Cube();
-    yellow.color = [1,1,0,1];
-    yellow.textureNum=-2;
-    yellow.matrix.setTranslate(0, -.5, 0.0);
-    yellow.matrix.rotate(-5, 1,0,0);
-    yellow.matrix.rotate(-g_yellowAngle, 0, 0,1);
-    var yellowCoordinatesMat=new Matrix4(yellow.matrix);
-    yellow.matrix.scale(0.25, .7, .5);
-    yellow.matrix.translate(-.5,0,0);
-    yellow.render();
-
-    var magenta = new Cube();
-    magenta.color = [1,0,1,1];
-    magenta.textureNum=-2;
-    magenta.matrix = yellowCoordinatesMat;
-    magenta.matrix.translate(0, 0.65, 0);
-    magenta.matrix.rotate(g_magentaAngle,0,0,1);
-    magenta.matrix.scale(.3,.3,.3);
-    magenta.matrix.translate(-.5,0,-0.001);
-    magenta.render();
-
-    var ground = new Cube();
-    ground.matrix.translate(0,0,-1);
-    ground.matrix.scale(2,.1,2);
-    ground.render();
+    for(var i = 0; i<blockList.length;i++){
+        blockList[i].render();
+    }
 
     var duration = performance.now() - startTime;
     sendTextToHTML( " ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration)/10, "numdot");
