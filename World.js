@@ -205,7 +205,7 @@ function initTextures(){
 
     image.onload = function(){ sendImageToTEXTURE0(image, 0);};
 
-    image.src = '../sky.jpg';
+    image.src = 'sky.jpg';
 
     var groundImg = new Image();
     if(!groundImg){
