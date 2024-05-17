@@ -160,10 +160,10 @@ let g_camera = null;
 function addActionsForHtmlUI(){
 
     //Button Events (Shape Type)
-    document.getElementById('animationYellowOffButton').onclick = function() {g_yellowAnimation=false;};
-    document.getElementById('animationYellowOnButton').onclick = function() {g_yellowAnimation=true;};
-    document.getElementById('animationMagentaOffButton').onclick = function() {g_magentaAnimation=false;};
-    document.getElementById('animationMagentaOnButton').onclick = function() {g_magentaAnimation=true;};
+    //document.getElementById('animationYellowOffButton').onclick = function() {g_yellowAnimation=false;};
+    //document.getElementById('animationYellowOnButton').onclick = function() {g_yellowAnimation=true;};
+    //document.getElementById('animationMagentaOffButton').onclick = function() {g_magentaAnimation=false;};
+    //document.getElementById('animationMagentaOnButton').onclick = function() {g_magentaAnimation=true;};
     //document.getElementById('animationBodyOffButton').onclick = function() {g_bodyAnimation=false;};
     //document.getElementById('animationBodyOnButton').onclick = function() {g_bodyAnimation=true;};
     //document.getElementById('green').onclick = function() { g_selectedColor = [0.0,1.0,0.0,1.0];};
@@ -176,8 +176,8 @@ function addActionsForHtmlUI(){
 
     //Slider Events
     //document.getElementById('redSlide').addEventListener('mouseup', function() {g_selectedColor[0] = this.value/100;});
-    document.getElementById('magentaSlide').addEventListener('mousemove', function() {g_magentaAngle = this.value; renderScene();});
-    document.getElementById('yellowSlide').addEventListener('mousemove', function() {g_yellowAngle = this.value; renderScene();});
+    //document.getElementById('magentaSlide').addEventListener('mousemove', function() {g_magentaAngle = this.value; renderScene();});
+    //document.getElementById('yellowSlide').addEventListener('mousemove', function() {g_yellowAngle = this.value; renderScene();});
     //document.getElementById('mainSlide').addEventListener('mousemove', function() {g_mainAngle = this.value; renderScene();});
     //  document.getElementById('backSlide').addEventListener('mousemove', function() {g_backAngle = this.value; renderScene();});
 
